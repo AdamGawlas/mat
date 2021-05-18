@@ -1,0 +1,238 @@
+#include <Keypad.h>
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+int i, misto, y, pokusy, z;
+int cer = 10;
+int zel = 11;
+int mod = 12;
+char ser_kod[4] = {'A', 'D', 'A', 'M'};
+char heslo[4] = {'5', '3', '3', '2'};
+char zadano[4];
+char keys[4][4] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','M'},
+  {'*','0','#','D'}
+};
+
+byte pinyRadku[4] = {5, 4, 3, 2};
+byte pinySloupcu[4] = {6, 7, 8, 9};
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x3F, 16, 2);
+Keypad klavesnice = Keypad( makeKeymap(keys), pinyRadku, pinySloupcu, 4, 4);
+
+
+
+void setup() {
+  Serial.begin(9600);
+  lcd.init();
+  lcd.backlight();
+  lcd.print("KODOVY ZAMEK");
+  delay(4000);
+}
+
+
+void loop() 
+{  
+ z=0;
+ pokusy=3;
+
+ lcd.clear();
+ lcd.print("ZADEJTE HESLO");
+ delay(3000);
+  
+
+ do{
+    RGB(0, 0, 150);
+    misto = 7;
+    i=0;
+    prihlaseni();
+    
+       for(y=0;y<4;y++)
+       {              
+         char klavesa = klavesnice.getKey();
+          if (klavesa)                        
+              {       
+                if(klavesa != '#')
+                  {  lcd.setCursor(misto, 1);
+                     lcd.print("*");    
+                     zadano[y] = klavesa;
+                     misto++;         
+                   }                       
+                else{y--;}
+              }                    
+          else {y--;}
+       } 
+
+
+   do{ 
+      z=0;
+      char klavesa = klavesnice.getKey();  
+      if (klavesa == '#')
+         {
+          for(y=0;y<4;y++)
+              {
+               if(heslo[y] == zadano[y]) { i++; z=1; }
+               else{i=-5; }
+              }
+         }
+       if(i<0)
+         {    
+          lcd.clear();
+          lcd.print("SPATNY KOD");
+          RGB(255, 0, 0);
+          delay(1000);
+          RGB(0, 0, 0);
+          pokusy--;z=1;
+         }
+               
+         
+     }while(z != 1);   
+      if(pokusy == 0){i=4;}
+    }while(i != 4);
+
+
+
+ if(pokusy == 0)
+   {
+    zablokovano();
+
+    do{
+      digitalWrite(cer, HIGH);
+      //delay(100);
+      
+      
+       misto = 7;
+       lcd.clear();
+       lcd.print("SERVISNI HESLO:");
+       lcd.setCursor(0, 1);
+       lcd.print("HESLO: ");
+
+       for(y=0;y<4;y++)
+          {
+           char klavesa = klavesnice.getKey();
+           if (klavesa) 
+              {
+               
+               if(klavesa != '#')
+                 {
+                  lcd.setCursor(misto, 1);
+                  lcd.print("*");
+                  zadano[y] = klavesa;
+                  misto++;         
+                 }
+               else{y--;}
+               }
+           else {y--;}
+          } 
+
+digitalWrite(cer, LOW); delay(100);
+     do{ 
+        i=0;
+        z=0;
+        char klavesa = klavesnice.getKey();
+        if (klavesa == '#')
+           {
+            for(y=0;y<4;y++)
+               {             
+                if(ser_kod[y] == zadano[y]) { i++; z=1; }
+                else{i=-5;}
+               }
+           }
+                    
+        if(i<0)
+          {    
+           lcd.clear();
+           lcd.print("SPATNY KOD");
+           delay(1000);
+           z=1;
+          }
+          
+     }while(z != 1);
+    }while(i != 4);
+
+
+  lcd.clear();
+  lcd.print("SERVISNI KOD");
+  lcd.setCursor(0,1);
+  lcd.print("PRIJAT");
+  delay(3000);
+}
+
+
+else{
+     RGB(0, 255, 0);
+     uspech();
+     pokusy=3;
+    }
+}
+
+
+
+
+
+void prihlaseni()
+{
+   misto = 7;
+   i=0;
+   lcd.clear();
+   lcd.setCursor(0, 0);
+   lcd.print("VOLNE POKUSY: ");
+   lcd.print(pokusy);
+   lcd.setCursor(0, 1);
+   lcd.print("HESLO:");
+}
+
+void zablokovano()
+{
+      lcd.clear();
+      lcd.print("ZAMEK JE ");
+      lcd.setCursor(0, 1);
+      lcd.print("ZABLOKOVAN ");
+      delay(3000);
+      lcd.clear();
+      lcd.print("ZADEJ SERVISNI");
+      lcd.setCursor(0, 1);
+      lcd.print("HESLO ");
+      delay(2000);
+}
+
+void uspech()
+{
+  lcd.clear();
+  lcd.print("PRIHLASOVACI KOD");
+  lcd.setCursor(0, 1);
+  lcd.print("PRIJAT");
+  delay(2000);
+  lcd.clear();
+  lcd.print("VITEJTE");
+  delay(2000);
+  lcd.clear();
+  
+  do{
+     i=0;
+     lcd.setCursor(0, 0);
+     lcd.print("PRO ODHLASENI");
+     lcd.setCursor(0, 1);
+     lcd.print("STISKNI '*'");
+     char klavesa = klavesnice.getKey();
+     if (klavesa){
+                  lcd.setCursor(15, 1);
+                 }
+     if(klavesa == '*'){i=1;delay(300);}
+    }while(i != 1);
+  
+     lcd.clear();
+     lcd.print("ODHLASOVANI");
+     delay(2000);
+     lcd.clear();
+     lcd.print("JSTE ODHLASEN");
+     delay(1500);
+}
+
+void RGB(int cer_hod, int zel_hod, int mod_hod)
+ {
+  analogWrite(cer, cer_hod);
+  analogWrite(zel, zel_hod);
+  analogWrite(mod, mod_hod);
+}
