@@ -1,0 +1,264 @@
+int rh = 13;
+int oh = 12;
+int gh = 11;
+int prh = A1;
+int pgh = 5;
+
+int rv = 10;
+int ov = 9;
+int gv = 8;
+int prv = 7;
+int pgv = A0;
+
+
+int y=0, z = 0, pocet = 0;
+volatile int t = 0;
+volatile int x = 0;
+float d = 1000;
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
+
+
+void setup() {
+  pinMode(rh, OUTPUT);
+  pinMode(oh, OUTPUT);
+  pinMode(gh, OUTPUT);
+  pinMode(prh, OUTPUT);
+  pinMode(pgh, OUTPUT);
+  pinMode(rv, OUTPUT);
+  pinMode(ov, OUTPUT);
+  pinMode(gv, OUTPUT);
+  pinMode(prv, OUTPUT);
+  pinMode(pgv, OUTPUT);
+
+
+
+
+attachInterrupt(digitalPinToInterrupt(2),button,RISING);
+attachInterrupt(digitalPinToInterrupt(3),tlacitko,RISING);
+
+
+  Serial.begin(9600);
+}
+
+void loop() {
+if(t==1)
+{
+    if(z==2)
+    {   
+      prepnuti();
+      z=1;
+    } 
+
+  den();
+  
+  }
+
+else if (t==0)
+{
+  noc();
+  z=2;
+  }
+
+}
+
+void button()
+{
+  t++;
+  if (t==2)
+  {
+    t=0;
+  }
+  }
+
+void tlacitko ()
+{
+  x=1;
+  
+  }
+
+
+void noc()
+{
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(2, 0);
+  lcd.print("Nocni rezim");
+
+
+  digitalWrite(rh, LOW);
+  digitalWrite(oh, HIGH);
+  digitalWrite(gh, LOW);
+  digitalWrite(prh, LOW);
+  digitalWrite(pgh, LOW);
+
+  digitalWrite(rv, LOW);
+  digitalWrite(ov, HIGH);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, LOW);
+  digitalWrite(pgv, LOW);
+  delay(500);
+
+  digitalWrite(oh, LOW);
+  digitalWrite(ov, LOW);
+  delay(500);
+}
+
+void prepnuti()
+
+{
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(2, 0);
+  lcd.print("   ");
+
+  digitalWrite(rh, HIGH);
+  digitalWrite(rv, HIGH);
+  digitalWrite(prh, HIGH);
+  digitalWrite(prv, HIGH);
+  delay (5000);
+  digitalWrite(rh, LOW);
+  digitalWrite(rv, LOW);
+  digitalWrite(prh, LOW);
+  digitalWrite(prv, LOW);
+  delay (100);
+}
+
+void den()
+{
+  if (x == 1)
+  {
+    x = 0;
+    pocet = pocet + 1;
+
+
+    if (pocet == 0)
+    {
+      d = 1000;
+
+    }
+    else if (pocet == 1)
+    {
+      d = 500;
+
+    }
+
+    else if (pocet == 2)
+    {
+      d = 250;
+
+    }
+
+    else if (pocet == 3)
+    {
+      d = 1000;
+      pocet = 0;
+    }
+  }
+  Serial.println(pocet);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(2, 0);
+  lcd.print("Denni rezim");
+
+  digitalWrite(rh, HIGH);
+  digitalWrite(oh, LOW);
+  digitalWrite(gh, LOW);
+
+  digitalWrite(rv, LOW);
+  digitalWrite(ov, HIGH);
+  digitalWrite(gv, LOW);
+  delay(d);
+  //1s
+
+  digitalWrite(rh, HIGH);
+  digitalWrite(oh, HIGH);
+  digitalWrite(gh, LOW);
+  digitalWrite(prh, HIGH);
+  digitalWrite(pgh, LOW);
+
+  digitalWrite(rv, HIGH);
+  digitalWrite(ov, LOW);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, LOW);
+  digitalWrite(pgv, HIGH);
+
+  delay(d);
+  //2s
+
+  digitalWrite(rh, LOW);
+  digitalWrite(oh, LOW);
+  digitalWrite(gh, HIGH);
+  digitalWrite(prh, HIGH);
+  digitalWrite(pgh, LOW);
+
+  digitalWrite(rv, HIGH);
+  digitalWrite(ov, LOW);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, LOW);
+  digitalWrite(pgv, HIGH);
+  delay(d);
+  //3s
+
+  digitalWrite(rh, LOW);
+  digitalWrite(oh, LOW);
+  digitalWrite(gh, HIGH);
+  digitalWrite(prh, HIGH);
+  digitalWrite(pgh, LOW);
+
+  digitalWrite(rv, HIGH);
+  digitalWrite(ov, LOW);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, LOW);
+  digitalWrite(pgv, HIGH);
+  delay(d);
+  //4s
+
+  digitalWrite(rh, LOW);
+  digitalWrite(oh, HIGH);
+  digitalWrite(gh, LOW);
+  digitalWrite(prh, HIGH);
+  digitalWrite(pgh, LOW);
+
+
+  digitalWrite(rv, HIGH);
+  digitalWrite(ov, LOW);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, LOW);
+  digitalWrite(pgv, HIGH);
+  delay(d);
+  //5s
+
+  digitalWrite(rh, HIGH);
+  digitalWrite(oh, LOW);
+  digitalWrite(gh, LOW);
+  digitalWrite(prh, LOW);
+  digitalWrite(pgh, HIGH);
+
+  digitalWrite(rv, HIGH);
+  digitalWrite(ov, HIGH);
+  digitalWrite(gv, LOW);
+  digitalWrite(prv, HIGH);
+  digitalWrite(pgv, LOW);
+  delay(d);
+  //6s
+
+  digitalWrite(rh, HIGH);
+  digitalWrite(oh, LOW);
+  digitalWrite(gh, LOW);
+  digitalWrite(prh, LOW);
+  digitalWrite(pgh, HIGH);
+
+  digitalWrite(rv, LOW);
+  digitalWrite(ov, LOW);
+  digitalWrite(gv, HIGH);
+  digitalWrite(prv, HIGH);
+  digitalWrite(pgv, LOW);
+  delay(d);
+  //7s
+}
