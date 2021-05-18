@@ -1,0 +1,167 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date:    03:52:18 05/18/2021 
+-- Design Name: 
+-- Module Name:    skrinka_main - Behavioral 
+-- Project Name: 
+-- Target Devices: 
+-- Tool versions: 
+-- Description: 
+--
+-- Dependencies: 
+--
+-- Revision: 
+-- Revision 0.01 - File Created
+-- Additional Comments: 
+--
+----------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx primitives in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity skrinka_main is
+    Port ( mince : in  STD_LOGIC_VECTOR (2 DOWNTO 0);
+           clk : in  STD_LOGIC;
+           reset : in  STD_LOGIC;
+           vyst : out  STD_LOGIC_VECTOR (1 DOWNTO 0);
+           stav : inout  STD_LOGIC_VECTOR (2 DOWNTO 0));
+end skrinka_main;
+
+architecture Behavioral of skrinka_main is
+
+ signal state, next_state : STD_LOGIC_VECTOR (2 DOWNTO 0); 
+ 
+constant s0 : STD_LOGIC_VECTOR (2 DOWNTO 0):="000";
+constant s1 : STD_LOGIC_VECTOR (2 DOWNTO 0):="001";
+constant s2 : STD_LOGIC_VECTOR (2 DOWNTO 0):="010";
+constant s3 : STD_LOGIC_VECTOR (2 DOWNTO 0):="011";
+constant s4 : STD_LOGIC_VECTOR (2 DOWNTO 0):="100";
+
+begin
+
+  SYNC_PROC: process (reset,clk)
+   begin
+         if (reset = '1') then
+            state <= s0;
+         elsif rising_edge(clk) then
+            state <= next_state;
+         end if;   
+   end process;
+	
+  OUTPUT_DECODE: process (state, mince)
+   begin
+	case (state) is
+	
+	when s0 =>
+      if (mince="000") then vyst<="00";
+      elsif (mince="100") then vyst<="00";
+		elsif (mince="010") then vyst<="00";
+		elsif (mince="001") then vyst<="10";
+		else vyst<= "00";
+		end if;
+		
+	when s1 =>
+      if (mince="000") then vyst<="00";
+      elsif (mince="100") then vyst<="00";
+		elsif (mince="010") then vyst<="00";
+		elsif (mince="001") then vyst<="11";
+		else vyst<= "00";
+		end if;
+		
+	when s2 =>
+      if (mince="000") then vyst<="00";
+      elsif (mince="100") then vyst<="00";
+		elsif (mince="010") then vyst<="00";
+		elsif (mince="001") then vyst<="11";
+		else vyst<= "00";
+		end if;
+		
+	when s3 =>
+      if (mince="000") then vyst<="00";
+      elsif (mince="100") then vyst<="00";
+		elsif (mince="010") then vyst<="10";
+		elsif (mince="001") then vyst<="11";
+		else vyst<= "00";	
+		end if;
+		
+	when s4 =>
+      if (mince="000") then vyst<="00";
+      elsif (mince="100") then vyst<="10";
+		elsif (mince="010") then vyst<="11";
+		elsif (mince="001") then vyst<="11";
+		else vyst<= "00";			
+      end if;
+		
+		
+		
+	when others=>NULL;
+		
+		end case;
+		
+		stav<=state;
+		
+   end process;
+	
+	
+	
+	 NEXT_STATE_DECODE: process (state,mince)
+   begin
+      case (state) is
+         when s0 =>
+            if (mince="000") then next_state <=s0;
+				elsif (mince="100") then next_state <=s1;
+				elsif (mince="010") then next_state <=s2;
+				elsif (mince="001") then next_state <=s0;
+				else next_state<=s0;
+            end if;
+				
+	  when s1 =>
+            if (mince="000") then next_state <=s1;
+				elsif (mince="100") then next_state <=s2;
+				elsif (mince="010") then next_state <=s3;
+				elsif (mince="001") then next_state <=s0;
+				else next_state<=s1;
+            end if;
+				
+		when s2 =>
+            if (mince="000") then next_state <=s2;
+				elsif (mince="100") then next_state <=s3;
+				elsif (mince="010") then next_state <=s4;
+				elsif (mince="001") then next_state <=s0;
+				else next_state<=s2;
+            end if;
+				
+		when s3 =>
+            if (mince="000") then next_state <=s3;
+				elsif (mince="100") then next_state <=s4;
+				elsif (mince="010") then next_state <=s0;
+				elsif (mince="001") then next_state <=s0;
+				else next_state<=s3;
+            end if;
+				
+		when s4 =>
+            if (mince="000") then next_state <=s4;
+				elsif (mince="100") then next_state <=s0;
+				elsif (mince="010") then next_state <=s0;
+				elsif (mince="001") then next_state <=s0;
+				else next_state<=s4;
+            end if;
+				
+         when others =>NULL;
+      end case; 
+stav<=state;		
+   end process;
+
+
+end Behavioral;
+
