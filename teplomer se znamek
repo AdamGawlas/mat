@@ -1,0 +1,150 @@
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 7
+
+float tempC;
+int cer=10,zel=9,mod=8;
+float min_tt=100,max_tt=0;
+int tlacitko=0;
+int volatile x=0;
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+LiquidCrystal_I2C lcd(0x3F,16,2);
+
+byte znak[] = {
+B00111,
+B00101,
+B00111,
+B00000,
+B00000,
+B00000,
+B00000,
+B00000
+};
+
+
+
+void setup() {  
+  attachInterrupt(0,prep,RISING);
+  Serial.begin(9600);
+  lcd.init(); 
+  lcd.backlight();
+  sensors.begin();
+}
+
+void loop() {
+  lcd.createChar(0, znak);
+  sensors.requestTemperatures();
+ tempC = sensors.getTempCByIndex(0);
+  if (tempC<min_tt)
+  {min_tt=tempC;}
+   if (tempC>max_tt)
+  {max_tt=tempC;}
+Serial.println(min_tt);
+Serial.println(max_tt);
+
+if(tlacitko>2)
+{
+  tlacitko=0;
+  }
+
+  
+if (tlacitko==0)
+{
+sensors.requestTemperatures();
+if (tempC>28.5)
+{
+    lcd.clear(); 
+  chlazeni ();
+    analogWrite(cer, 0);
+   analogWrite(zel, 0);
+   analogWrite(mod, 255);  
+  }else if (tempC<26.5)
+  {
+      lcd.clear(); 
+    topeni ();
+    analogWrite(cer, 255);
+   analogWrite(zel, 0);
+   analogWrite(mod, 0);  
+    }else
+    {
+        lcd.clear(); 
+      pohoda ();
+      analogWrite(cer, 0);
+   analogWrite(zel, 255);
+   analogWrite(mod, 0);  
+      }
+
+  
+}else if (tlacitko==1)
+{
+  lcd.clear(); 
+  min_t ();
+  }else 
+  {
+    lcd.clear(); 
+    max_t ();
+    }
+
+  
+}
+void chlazeni ()
+{
+    lcd.setCursor(0,0);
+lcd.print("MOD: CHLAZENI");
+lcd.setCursor(0,1);
+lcd.print(tempC,4);
+lcd.write(byte(0));
+lcd.print("C");
+  
+  }
+void topeni ()
+{
+  lcd.setCursor(0,0);
+lcd.print("MOD: TOPENI");
+lcd.setCursor(0,1);
+lcd.print(tempC,4);
+lcd.write(byte(0));
+lcd.print("C");
+  
+  }
+void pohoda ()
+{
+lcd.setCursor(0,0);
+lcd.print("Aktualni teplota");
+lcd.setCursor(0,1);
+lcd.print(tempC,4);
+lcd.write(byte(0));
+lcd.print("C");
+  }
+
+void prep ()
+{
+  tlacitko=tlacitko+1;
+  }
+
+  void min_t ()
+  {
+lcd.setCursor(0,0);
+lcd.print("Min. teplota");
+lcd.setCursor(0,1);
+lcd.print(min_tt,4);
+lcd.write(byte(0));
+lcd.print("C");
+  }
+
+  void max_t ()
+  {
+lcd.setCursor(0,0);
+lcd.print("Max. teplota");
+lcd.setCursor(0,1);
+lcd.print(max_tt,4); 
+lcd.write(byte(0));
+lcd.print("C");   
+  }
+
+  
+  
